@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consolidador de Catálogos</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState } = React;
+const { Upload, Download, Check, Loader2, FileSpreadsheet, Trash2 } = lucide;
+
+const CatalogApp = () => {
+  const loadSavedData = () => {
+    try {
+      const saved = localStorage.getItem('catalogData');
+      if (saved) {
+        const data = JSON.parse(saved);
+        return { results: data.results, favorites: new Set(data.favorites || []) };
+      }
+    } catch (e) {
+      console.error('Error:', e);
+    }
+    return { results: null, favorites: new Set() };
+  };
+
+  const savedData = loadSavedData();
+  const [files, setFiles] = useState([]);
+  const [processing, setProcessing] = useState(false);
+  const [results, setResults] = useState(savedData.results);
+  const [logs, setLogs] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [filterCategory, setFilterCategory] = useState('TODAS');
+  const [customMargin, setCustomMargin] = useState(80);
+  const [favorites, setFavorites] = useState(savedData.favorites);
+
+  const addLog = (msg, type = 'info') => {
+    setLogs(p => [...p, { message: msg, type, time: new Date().toLocaleTimeString() }]);
+  };
+
+  const saveData = (resultsData, favSet) => {
+    try {
+      localStorage.setItem('catalogData', JSON.stringify({
+        results: resultsData,
+        favorites: Array.from(favSet),
+        timestamp: new Date().toISOString()
+      }));
+      addLog('💾 Guardado automáticamente', 'success');
+    } catch (e) {
+      console.error('Error saving:', e);
+    }
+  };
+
+  const generateMockProducts = (name, count) => {
+    const cats = ['ACCESORIOS', 'ELECTRONICA', 'HOGAR', 'DEPORTES'];
+    const prods = ['Dispensador de Agua', 'Base para Teléfono', 'Cargador USB', 'Audífonos Bluetooth', 
+                   'Cable HDMI', 'Mouse Inalámbrico', 'Lámpara LED', 'Powerbank'];
+    return Array(count).fill(0).map((_, i) => ({
+      provider: name.replace('.xlsx', ''),
+      sku: `${name.substring(0,3)}-${Math.floor(Math.random()*9000)+1000}`,
+      description: prods[i % prods.length],
+      moq: [50,60,100,200][Math.floor(Math.random()*4)],
+      priceMenudeo: parseFloat((Math.random()*60+30).toFixed(2)),
+      priceCaja: parseFloat((Math.random()*50+20).toFixed(2)),
+      category: cats[Math.floor(Math.random()*cats.length)]
+    }));
+  };
+
+  const processFiles = async () => {
+    setProcessing(true);
+    setLogs([]);
+    addLog('🚀 Iniciando...', 'info');
+
+    try {
+      const filesToProcess = [
+        {name: 'Proveedor_A.xlsx'}, 
+        {name: 'Proveedor_B.xlsx'}, 
+        {name: 'Proveedor_C.xlsx'}
+      ];
+      
+      const allProducts = [];
+      for (let file of filesToProcess) {
+        await new Promise(r => setTimeout(r, 300));
+        const products = generateMockProducts(file.name, 50);
+        allProducts.push(...products);
+        addLog(`✓ ${file.name}: ${products.length} productos`, 'success');
+      }
+
+      const groups = [];
+      const processed = new Set();
+      allProducts.forEach((p, i) => {
+        if (processed.has(i)) return;
+        const group = [p];
+        processed.add(i);
+        allProducts.forEach((o, j) => {
+          if (i !== j && !processed.has(j) && p.description === o.description) {
+            group.push(o);
+            processed.add(j);
+          }
+        });
+        groups.push(group);
+      });
+
+      const consolidated = groups.map((group, idx) => {
+        const best = group.reduce((min, p) => p.priceCaja < min.priceCaja ? p : min);
+        const prices = group.map(p => p.priceCaja);
+        const maxPrice = Math.max(...prices);
+        const savings = (maxPrice - best.priceCaja).toFixed(2);
+        
+        return {
+          consolidated_sku: `CONS-${String(idx+1).padStart(4,'0')}`,
+          description: best.description,
+          priceCaja: best.priceCaja,
+          priceMenudeo: best.priceMenudeo,
+          moq: best.moq,
+          category: best.category,
+          provider: best.provider,
+          num_providers: group.length,
+          savings,
+          optimizedTitle: `${best.description} Premium - Envío Gratis`,
+          optimizedDescription: `✨ ${best.description} de alta calidad\n\n🎯 Características:\n• Material resistente\n• Fácil instalación\n• Compatible universal\n• Garantía incluida`,
+          hashtags: `#accesorios #gadgets #enviogratis #ofertas`,
+          margin50: Math.ceil(best.priceMenudeo * 1.5) - 0.01,
+          margin80: Math.ceil(best.priceMenudeo * 1.8) - 0.01,
+          margin100: Math.ceil(best.priceMenudeo * 2) - 0.01,
+          alternatives: group.map(p => ({
+            provider: p.provider,
+            sku: p.sku,
+            priceCaja: p.priceCaja
+          }))
+        };
+      });
+
+      const newResults = {
+        consolidated: consolidated.sort((a,b) => a.category.localeCompare(b.category)),
+        stats: {
+          totalProducts: consolidated.length,
+          totalSavings: consolidated.reduce((s,p) => s + parseFloat(p.savings), 0).toFixed(2),
+          duplicateProducts: consolidated.filter(p => p.num_providers > 1).length,
+          avgProviders: (consolidated.reduce((s,p) => s + p.num_providers, 0) / consolidated.length).toFixed(1)
+        }
+      };
+
+      setResults(newResults);
+      saveData(newResults, favorites);
+      addLog('🎉 Completado!', 'success');
+    } catch (error) {
+      addLog(`❌ Error: ${error.message}`, 'error');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const exportToCSV = () => {
+    if (!results) return;
+    let csv = 'SKU,Título,Descripción,Costo,Venta 80%,Ganancia,Hashtags\n';
+    results.consolidated.forEach(p => {
+      csv += `"${p.consolidated_sku}","${p.optimizedTitle}","${p.optimizedDescription.replace(/\n/g, ' ')}",${p.priceMenudeo},${p.margin80.toFixed(2)},${(p.margin80 - p.priceMenudeo).toFixed(2)},"${p.hashtags}"\n`;
+    });
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Catalogo_${Date.now()}.csv`;
+    a.click();
+    addLog('📥 CSV descargado', 'success');
+  };
+
+  const toggleFavorite = (sku) => {
+    const newFav = new Set(favorites);
+    if (newFav.has(sku)) newFav.delete(sku);
+    else newFav.add(sku);
+    setFavorites(newFav);
+    saveData(results, newFav);
+  };
+
+  const resetApp = () => {
+    if (confirm('¿Borrar todo?')) {
+      setResults(null);
+      setLogs([]);
+      setFavorites(new Set());
+      localStorage.removeItem('catalogData');
+      addLog('🗑️ Datos eliminados', 'info');
+    }
+  };
+
+  const getFiltered = () => {
+    if (!results) return [];
+    return filterCategory !== 'TODAS' 
+      ? results.consolidated.filter(p => p.category === filterCategory)
+      : results.consolidated;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl mb-6 shadow-xl">
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">📊 Consolidador de Catálogos</h1>
+              <p className="text-blue-100">Mejor precio entre proveedores</p>
+            </div>
+            {results && (
+              <div className="bg-white/20 px-4 py-2 rounded-lg">
+                <div className="text-xs text-blue-100">Última actualización</div>
+                <div className="text-sm font-bold">
+                  {new Date(JSON.parse(localStorage.getItem('catalogData') || '{}').timestamp || Date.now()).toLocaleDateString('es-MX')}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl p-6 shadow-lg">
+            <h2 className="text-xl font-bold mb-4">📁 Procesar Catálogos</h2>
+            <button
+              onClick={processFiles}
+              disabled={processing}
+              className="w-full bg-green-600 text-white py-4 rounded-xl font-bold disabled:opacity-50 hover:bg-green-700 transition-colors"
+            >
+              {processing ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Procesando...
+                </span>
+              ) : (
+                '🎯 Ver Ejemplo Demo'
+              )}
+            </button>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-lg">
+            <h2 className="text-xl font-bold mb-4">📝 Registro</h2>
+            <div className="bg-gray-900 rounded-xl p-4 h-64 overflow-y-auto font-mono text-sm">
+              {logs.length === 0 ? (
+                <p className="text-gray-500">Esperando...</p>
+              ) : (
+                logs.map((log, idx) => (
+                  <div key={idx} className={
+                    log.type === 'error' ? 'text-red-400' :
+                    log.type === 'success' ? 'text-green-400' : 'text-gray-300'
+                  }>
+                    [{log.time}] {log.message}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {results && (
+          <div className="mt-6 space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-3xl font-bold text-blue-600">{results.stats.totalProducts}</div>
+                <div className="text-sm text-gray-600">Productos</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-3xl font-bold text-green-600">${results.stats.totalSavings}</div>
+                <div className="text-sm text-gray-600">Ahorro</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-3xl font-bold text-purple-600">{results.stats.duplicateProducts}</div>
+                <div className="text-sm text-gray-600">Duplicados</div>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-lg">
+                <div className="text-3xl font-bold text-orange-600">{results.stats.avgProviders}</div>
+                <div className="text-sm text-gray-600">Proveedores</div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-lg">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                <h2 className="text-2xl font-bold">Catálogo Consolidado</h2>
+                <button
+                  onClick={exportToCSV}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Descargar CSV
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="px-3 py-2 border rounded-lg"
+                >
+                  <option value="TODAS">Todas las Categorías</option>
+                  <option value="ACCESORIOS">Accesorios</option>
+                  <option value="ELECTRONICA">Electrónica</option>
+                  <option value="HOGAR">Hogar</option>
+                  <option value="DEPORTES">Deportes</option>
+                </select>
+
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-semibold">Margen:</label>
+                  <input
+                    type="range"
+                    min="20"
+                    max="200"
+                    value={customMargin}
+                    onChange={(e) => setCustomMargin(parseInt(e.target.value))}
+                    className="flex-1"
+                  />
+                  <span className="font-bold text-purple-600 w-16">{customMargin}%</span>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm">⭐</th>
+                      <th className="px-4 py-3 text-left text-sm">Producto</th>
+                      <th className="px-4 py-3 text-left text-sm">Costo</th>
+                      <th className="px-4 py-3 text-left text-sm">Venta</th>
+                      <th className="px-4 py-3 text-left text-sm">Ganancia</th>
+                      <th className="px-4 py-3 text-left text-sm">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getFiltered().map((p, idx) => {
+                      const customPrice = Math.ceil(p.priceMenudeo * (1 + customMargin/100)) - 0.01;
+                      const profit = customPrice - p.priceMenudeo;
+                      const isFav = favorites.has(p.consolidated_sku);
+                      
+                      return (
+                        <tr key={idx} className={`hover:bg-gray-50 ${isFav ? 'bg-yellow-50' : ''}`}>
+                          <td className="px-4 py-3">
+                            <button onClick={() => toggleFavorite(p.consolidated_sku)} className="text-2xl">
+                              {isFav ? '⭐' : '☆'}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="font-medium">{p.description}</div>
+                            <div className="text-xs text-gray-500">{p.category}</div>
+                          </td>
+                          <td className="px-4 py-3 font-bold text-red-600">${p.priceMenudeo}</td>
+                          <td className="px-4 py-3 font-bold text-green-600">${customPrice.toFixed(2)}</td>
+                          <td className="px-4 py-3 font-bold text-purple-600">${profit.toFixed(2)}</td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => setSelectedProduct(p)}
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                            >
+                              Ver Detalles
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="mt-4 text-center text-sm text-gray-600">
+                Mostrando {getFiltered().length} de {results.stats.totalProducts} productos
+              </p>
+            </div>
+
+            {selectedProduct && (
+              <div className="bg-white rounded-xl p-6 border-2 border-purple-200 shadow-lg">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-2xl font-bold text-purple-600">🎯 Detalles de Venta</h2>
+                  <button onClick={() => setSelectedProduct(null)} className="text-gray-500 hover:text-gray-700 text-2xl">✕</button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-bold text-lg mb-2">{selectedProduct.description}</h3>
+                      <p className="text-sm text-gray-600">{selectedProduct.consolidated_sku}</p>
+                    </div>
+
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h3 className="font-bold mb-2">💰 Costos:</h3>
+                      <p>Caja: ${selectedProduct.priceCaja}</p>
+                      <p>Menudeo: ${selectedProduct.priceMenudeo}</p>
+                      <p>MOQ: {selectedProduct.moq} pzs</p>
+                    </div>
+
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <h3 className="font-bold mb-2">💵 Precios Sugeridos:</h3>
+                      <p>Margen 50%: ${selectedProduct.margin50.toFixed(2)}</p>
+                      <p className="font-bold text-lg text-green-700">Margen 80%: ${selectedProduct.margin80.toFixed(2)}</p>
+                      <p>Margen 100%: ${selectedProduct.margin100.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="bg-purple-50 p-4 rounded-lg">
+                      <h3 className="font-bold mb-2">✨ Título Optimizado:</h3>
+                      <p className="text-sm mb-2">{selectedProduct.optimizedTitle}</p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedProduct.optimizedTitle);
+                          addLog('📋 Título copiado', 'success');
+                        }}
+                        className="bg-purple-600 text-white px-4 py-2 rounded text-sm hover:bg-purple-700 transition-colors"
+                      >
+                        Copiar Título
+                      </button>
+                    </div>
+
+                    <div className="bg-orange-50 p-4 rounded-lg">
+                      <h3 className="font-bold mb-2">📝 Descripción:</h3>
+                      <p className="text-xs whitespace-pre-line mb-2">{selectedProduct.optimizedDescription}</p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedProduct.optimizedDescription);
+                          addLog('📋 Descripción copiada', 'success');
+                        }}
+                        className="bg-orange-600 text-white px-4 py-2 rounded text-sm hover:bg-orange-700 transition-colors"
+                      >
+                        Copiar Descripción
+                      </button>
+                    </div>
+
+                    <div className="bg-pink-50 p-4 rounded-lg">
+                      <h3 className="font-bold mb-2">#️⃣ Hashtags:</h3>
+                      <p className="text-sm mb-2">{selectedProduct.hashtags}</p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(selectedProduct.hashtags);
+                          addLog('📋 Hashtags copiados', 'success');
+                        }}
+                        className="bg-pink-600 text-white px-4 py-2 rounded text-sm hover:bg-pink-700 transition-colors"
+                      >
+                        Copiar Hashtags
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {selectedProduct.alternatives && selectedProduct.alternatives.length > 1 && (
+                  <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-bold mb-3">🔄 Proveedores Alternativos ({selectedProduct.alternatives.length}):</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {selectedProduct.alternatives.map((alt, idx) => (
+                        <div key={idx} className="bg-white p-3 rounded border text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="font-semibold">{alt.provider}</span>
+                            <span className="text-green-600 font-bold">${alt.priceCaja}</span>
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">SKU: {alt.sku}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={resetApp}
+              className="w-full bg-red-600 text-white py-3 rounded-xl font-semibold hover:bg-red-700 transition-colors"
+            >
+              🗑️ Borrar Todo y Empezar de Nuevo
+            </button>
+
+            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+              <p className="text-green-800 font-semibold text-sm flex items-center gap-2">
+                <Check className="w-5 h-5" />
+                Tus datos están guardados automáticamente
+              </p>
+              <p className="text-green-600 text-xs mt-1">
+                Puedes cerrar el navegador y volver cuando quieras. Los datos permanecerán aquí.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.render(React.createElement(CatalogApp), document.getElementById('root'));
+    </script>
+</body>
+</html>
