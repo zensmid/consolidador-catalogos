@@ -119,18 +119,10 @@ const CatalogApp = () => {
       addLog(`✅ ${data.consolidated.length} productos consolidados`, 'success');
 
       setStep(4);
-      addLog('🎨 Optimizando títulos y descripciones...', 'info');
+      addLog('🎨 Datos optimizados recibidos del servidor...', 'info');
 
-      // Añadir datos optimizados para TikTok Shop
-      const enrichedProducts = data.consolidated.map((p, idx) => ({
-        ...p,
-        optimizedTitle: `${p.description} Premium - Envío Gratis`,
-        optimizedDescription: `✨ ${p.description} de alta calidad\n\n🎯 Características:\n• Material resistente\n• Fácil instalación\n• Compatible universal\n• Garantía incluida`,
-        hashtags: `#${p.category.toLowerCase()} #gadgets #enviogratis #ofertas`,
-        margin50: Math.ceil(p.priceMenudeo * 1.5) - 0.01,
-        margin80: Math.ceil(p.priceMenudeo * 1.8) - 0.01,
-        margin100: Math.ceil(p.priceMenudeo * 2) - 0.01,
-      }));
+      // Los datos ya vienen optimizados desde el backend
+      const enrichedProducts = data.consolidated;
 
       const newResults = {
         consolidated: enrichedProducts,
@@ -501,9 +493,17 @@ const CatalogApp = () => {
 
                     <div className="bg-green-50 p-4 rounded-lg">
                       <h3 className="font-bold mb-2">💵 Precios Sugeridos:</h3>
-                      <p>Margen 50%: ${selectedProduct.margin50.toFixed(2)}</p>
-                      <p className="font-bold text-lg text-green-700">Margen 80%: ${selectedProduct.margin80.toFixed(2)}</p>
-                      <p>Margen 100%: ${selectedProduct.margin100.toFixed(2)}</p>
+                      <p className="text-sm text-gray-600 mb-2">Margen recomendado: {selectedProduct.profitMargin}</p>
+                      <p className="font-bold text-lg text-green-700">{selectedProduct.suggestedRetailPrice}</p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Margen 30%: ${(selectedProduct.priceCaja * 1.3).toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Margen 50%: ${(selectedProduct.priceCaja * 1.5).toFixed(2)}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Margen 100%: ${(selectedProduct.priceCaja * 2).toFixed(2)}
+                      </p>
                     </div>
                   </div>
 
