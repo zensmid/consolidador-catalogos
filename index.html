@@ -259,14 +259,14 @@ const CatalogApp = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl p-6 shadow-lg">
-            <h2 className="text-xl font-bold mb-4">📁 Subir Catálogos Excel</h2>
-            <p className="text-gray-600 text-sm mb-4">Sube archivos Excel (.xlsx) con imágenes embebidas</p>
+            <h2 className="text-xl font-bold mb-4">📁 Subir Catálogos</h2>
+            <p className="text-gray-600 text-sm mb-4">Sube archivos PDF o Excel (.xlsx) con imágenes. <span className="font-bold text-orange-600">IMPORTANTE: Archivos grandes deben ser divididos (máx 50 MB por archivo)</span></p>
             
             <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 transition-colors">
               <input
                 type="file"
                 multiple
-                accept=".xlsx,.xls"
+                accept=".xlsx,.xls,.pdf"
                 onChange={handleFileSelect}
                 className="hidden"
                 id="file-upload"
@@ -274,7 +274,7 @@ const CatalogApp = () => {
               <label htmlFor="file-upload" className="cursor-pointer">
                 <div className="text-6xl mb-4">📤</div>
                 <p className="text-lg font-semibold mb-2">Click para seleccionar archivos</p>
-                <p className="text-sm text-gray-500">o arrastra y suelta aquí</p>
+                <p className="text-sm text-gray-500">PDF o Excel (.xlsx, .xls, .pdf)</p>
               </label>
             </div>
 
