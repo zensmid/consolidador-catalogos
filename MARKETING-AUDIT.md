@@ -242,41 +242,48 @@ Landing (Hero) → Productos → Precios → FAQ (validación de confianza) → 
 
 ### Competitive Positioning Analysis — 62/100
 
-**Posicionamiento actual:**
-Orvia compite en el segmento de importadores boutique DDP para SMBs mexicanos, diferenciándose de:
-- Agencias aduanales tradicionales (que no manejan origen en China)
-- Freight forwarders globales (DHL, Flexport — caros, impersonales, sin inspección)
-- Agentes de Alibaba/1688 (sin DDP, sin custodia de última milla)
+**Competidores identificados (research en vivo):**
 
-**Diferenciadores reales y su fortaleza:**
+| Competidor | Posicionamiento | Fortaleza digital |
+|------------|-----------------|-------------------|
+| **LatinChina Group** (importadechina.com.mx) | DDP todo México, 10+ años, blog activo | Moderada (8.8K Facebook, ranking orgánico) |
+| **Kuinsen** (kuinsen.com) | LCL marítimo, $3,000 USD mínimo, cursos | Fuerte SEO, curso de importación |
+| **Chilat** (chilat.com) | Agente compras LATAM, 80+ profesionales en China | Muy fuerte (blog, plataforma propia, listas SEO) |
+| **Bridge Asia** (bridgeasia.mx) | Monterrey, búsquedas proveedor + DDP | Débil (similar early-stage a Orvia) |
+| **De China para Mérida** (dechinaparamerida.com) | Competidor local directo en Yucatán | Desconocida — **valida la demanda regional** |
 
-| Diferenciador | Fortaleza | Demostrado en sitio |
-|---------------|-----------|---------------------|
-| DDP todo incluido | Alta | Sí (copy) |
-| Inspección previa Shenzhen | Alta | Sí (mencionado) |
-| 2 horas de respuesta | Alta | Sí (copy) |
-| Mínimo 0.1 CBM | Media-Alta | Sí |
-| Contratos | Media | Sí (mencionado) |
-| USDT como pago | Diferenciador de nicho | Sí |
-| 200+ importaciones | Media | Sí (número) |
+**Diferenciadores reales y su fortaleza (vs. competidores reales):**
 
-**Vulnerabilidades competitivas:**
-- Sin comparativa explícita vs. alternativas ("Orvia vs. agente aduanal tradicional")
-- Sin reseñas en Google, Trustpilot, o MeLi que un competidor no pueda igualar con copy
-- La proposición "cualquier producto" diluye la especialización en iPhone que es el activo más diferenciador
-- Ningún competidor conocido está activamente owned en el resultado orgánico para las keywords clave → oportunidad de SEO atacable ahora
+| Diferenciador | Fortaleza vs. competidores | Estado |
+|---------------|---------------------------|--------|
+| DDP todo incluido | **Débil** — es la oferta estándar del mercado | Sí (copy) |
+| Inspección previa Shenzhen | **Moderada** — todos lo ofrecen, fotos/videos es un detalle de ejecución | Sí (mencionado) |
+| **Cotización en 2 horas** | **Fuerte** — ningún competidor tiene este SLA explícito | Sí (copy) |
+| Mínimo 0.1 CBM | **Fuerte** — Kuinsen exige $3k USD mínimo | Sí |
+| **Pago con USDT** | **Único** — ningún competidor lo anuncia | Sí |
+| **Base en Sureste México (Mérida)** | **Único** — ningún competidor grande serve esta región | Sí (schema) |
+| 200+ importaciones | **Débil** — LatinChina claims 10+ años, miles de operaciones | Sí (número) |
 
-**Tabla comparativa:**
+**Oportunidad de categoría descubierta:**
+> **"El Importador DDP del Sureste Mexicano"** — nadie la está reclamando. Chilat, LatinChina, y Kuinsen están posicionados en CDMX/MTY/GDL. Orvia tiene infraestructura operativa real en Mérida para ser el referente del Sureste (Yucatán, Quintana Roo, Campeche, Tabasco, Veracruz).
 
-| Factor | Orvia | Agencia Aduanal Trad. | Flexport MX | Agente Alibaba |
-|--------|-------|----------------------|-------------|----------------|
-| DDP Incluido | ✅ | ❌ (solo aduana) | ✅ (caro) | ❌ |
-| Inspección en origen | ✅ | ❌ | ❌ | Variable |
-| Tiempo de respuesta | 2 hrs | 24-48 hrs | 24+ hrs | Variable |
-| Mínimo bajo | ✅ (0.1 CBM) | N/A | Alto | Variable |
-| Precio transparente | ❌ | ❌ | Parcial | ❌ |
-| Prueba social verificable | ❌ | Variable | ✅ | ❌ |
-| Presencia en MeLi/Amazon | Parcial | ❌ | ❌ | ❌ |
+**Oportunidad de contenido no explotada por ningún competidor:**
+- **"Importar sin Padrón de Importadores"** — una de las queries más buscadas en el nicho, y Orvia no tiene contenido sobre el tema.
+- **"Importar desde China a Mérida / Yucatán"** — cero competencia orgánica de los players grandes.
+
+**Tabla comparativa (con competidores reales):**
+
+| Factor | **Orvia** | **LatinChina** | **Kuinsen** | **Chilat** |
+|--------|-----------|----------------|-------------|------------|
+| DDP Completo | ✅ | ✅ | ✅ | ✅ (vía agente) |
+| Inspección origen | ✅ fotos/video | ✅ audits + fotos | Implícito | ✅ fotos + reportes |
+| Velocidad cotización | ✅ **~2 horas** | ❌ No especificado | ❌ No especificado | ⚠️ ~48 horas |
+| Mínimo bajo | ✅ 0.1 CBM | No publicado | ❌ $3,000 USD | ✅ Flexible |
+| Pago USDT | ✅ **Único** | ❌ | ❌ | ❌ |
+| Cobertura Sureste MX | ✅ **Solo player** | ❌ | ❌ | ❌ |
+| Presencia orgánica | ❌ No indexado | ✅ Moderada | ✅ Fuerte | ✅ Muy fuerte |
+| Reseñas externas | ❌ | ⚠️ Solo en sitio | ⚠️ Solo en sitio | ⚠️ Solo en sitio |
+| Contenido educativo | ❌ | ✅ Blog | ✅ Blog + cursos | ✅ Extenso |
 
 ---
 
@@ -319,14 +326,22 @@ El sitio usa *proof de proceso* (qué hace Orvia) en lugar de *proof de resultad
 
 ## Competitor Comparison
 
-| Factor | Orvia | Agencia Aduanal Trad. | Flexport MX | Agente Alibaba |
-|--------|-------|----------------------|-------------|----------------|
-| Headline Clarity | 7/10 | 5/10 | 8/10 | 4/10 |
-| Value Prop Strength | 7.5/10 | 5/10 | 7/10 | 4/10 |
-| Trust Signals | 5/10 | 6/10 | 9/10 | 3/10 |
-| CTA Effectiveness | 6.5/10 | 4/10 | 7/10 | 5/10 |
-| Pricing Clarity | 4/10 | 4/10 | 6/10 | 5/10 |
-| Content Depth | 5/10 | 4/10 | 9/10 | 3/10 |
+*Competidores identificados mediante research activo (marzo 2026)*
+
+| Factor | **Orvia** | **LatinChina Group** | **Kuinsen** | **Chilat** |
+|--------|-----------|----------------------|-------------|------------|
+| Headline Clarity | 7/10 | 8/10 | 7/10 | 8/10 |
+| Value Prop Strength | 7.5/10 | 7/10 | 6/10 | 8/10 |
+| Trust Signals | 5/10 | 7/10 | 7/10 | 8/10 |
+| CTA Effectiveness | 6.5/10 | 6/10 | 6/10 | 7/10 |
+| Pricing Clarity | 4/10 | 4/10 | 5/10 | 6/10 |
+| Content Depth | 5/10 | 7/10 | 8/10 | 9/10 |
+| Cobertura Sureste MX | **10/10** | 2/10 | 2/10 | 3/10 |
+| Velocidad de respuesta | **10/10** | 5/10 | 5/10 | 6/10 |
+
+**Nota:** La cobertura del Sureste de México y la velocidad de cotización son las únicas dimensiones donde Orvia supera claramente a todos los competidores. Estas deben ser los pilares del posicionamiento.
+
+**Competidor local detectado:** [De China para Mérida](https://www.dechinaparamerida.com/) — empresa local en Yucatán con el mismo mercado objetivo. Confirma que la demanda regional existe y está siendo atendida. Prioridad investigar su oferta y diferenciarse.
 
 ---
 
